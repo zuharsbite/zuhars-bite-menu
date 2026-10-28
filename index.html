@@ -28,7 +28,7 @@ button{cursor:pointer}
 .menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .item{background:white;border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;min-width:0;box-shadow:0 5px 18px #14284f0a}
 .item-top{display:flex;gap:11px;align-items:flex-start}
-.food-icon{width:52px;height:52px;border-radius:15px;background:#fff4d2;display:grid;place-items:center;font-size:28px;flex-shrink:0}
+.food-icon{width:76px;height:76px;border-radius:14px;overflow:hidden;flex-shrink:0;background:#f3eadb;box-shadow:0 3px 10px #14284f12}.food-icon img{width:100%;height:100%;display:block;object-fit:cover}.item{cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}.item:active,.item.pressed{transform:scale(.975);box-shadow:0 2px 8px #14284f22;border-color:var(--gold)}.item:hover{box-shadow:0 9px 24px #14284f12;transform:translateY(-2px)}.add-btn,.qty button,.checkout,.filter{transition:transform .16s ease,filter .16s ease}.add-btn:active,.qty button:active,.checkout:active,.filter:active{transform:scale(.96)}
 .item h3{margin:1px 0 5px;font-size:15px;line-height:1.25}
 .item .desc{font-size:12px;color:var(--muted);line-height:1.35}
 .price{font-weight:900;color:var(--navy);margin-top:10px}
@@ -53,9 +53,16 @@ button{cursor:pointer}
 .field textarea{min-height:74px;resize:vertical}
 .small-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px}
 .empty{background:white;border:1px dashed #cbd3e1;border-radius:16px;padding:20px;text-align:center;color:var(--muted);grid-column:1/-1}
+.series-heading{grid-column:1/-1;margin:12px 0 0;padding:10px 13px;border-left:4px solid var(--orange);border-radius:8px;background:#fff0d9;color:var(--navy);font-size:17px;font-weight:900;letter-spacing:.2px}.series-heading:first-child{margin-top:0}
 .footer{text-align:center;color:var(--muted);font-size:12px;padding:25px 10px}
 @media(min-width:700px){.hero{padding:38px 24px 42px}.main{padding:24px 20px 150px}.menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.item{padding:16px}}
 @media(max-width:380px){.menu-grid{grid-template-columns:1fr}.cart-inner{gap:8px}.checkout{padding:12px;font-size:13px}.cart-total{font-size:18px}.logo{width:105px;height:64px;padding:6px}.brand-row{gap:11px}.tagline{letter-spacing:1px;font-size:10px}}
+
+/* Detail menu + animasi keranjang */
+.cart-modal{opacity:1;transition:opacity .22s ease}.cart-modal[hidden]{display:none}.cart-panel{animation:cartIn .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes cartIn{from{transform:translateY(35px) scale(.98);opacity:.4}to{transform:translateY(0) scale(1);opacity:1}}
+.item-modal{position:fixed;inset:0;z-index:30;background:#0b1428b8;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}.item-modal[hidden]{display:none}.item-panel{background:#fffaf2;border-radius:22px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 18px 55px #0005;animation:cartIn .25s ease}.detail-image{width:100%;height:230px;object-fit:cover;display:block}.detail-content{padding:18px}.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.detail-head h2{margin:0;color:var(--navy);font-size:22px}.detail-close{border:0;border-radius:50%;width:36px;height:36px;font-size:24px;background:#eee6d8;color:var(--navy);flex-shrink:0}.detail-desc{color:var(--muted);line-height:1.5}.detail-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}.detail-actions .add-btn{padding:12px 16px}.spicy-box{margin-top:14px;padding:12px;border:1px solid #e2c98f;border-radius:12px;background:#fff4e2}.spicy-box label{display:block;font-weight:800;color:var(--navy);margin-bottom:7px}.spicy-box select{width:100%;padding:11px;border:1px solid #d8c7a5;border-radius:10px;background:#fff;color:var(--navy);font:inherit}.spicy-box[hidden]{display:none}.touch-sound{transition:transform .12s ease}.touch-sound:active{transform:scale(.97)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -91,9 +98,13 @@ button{cursor:pointer}
       <div class="cart-total" id="total">Rp0</div>
       <div class="cart-count" id="count">Belum ada item dipilih</div>
     </div>
-    <button class="checkout" id="open-cart" type="button">Keranjang</button><button class="checkout" id="checkout" disabled>Pesan via WhatsApp ↗</button>
+    <div class="cart-actions">
+      <button class="checkout" id="open-cart" type="button">Keranjang</button>
+      <button class="checkout" id="checkout" disabled>Pesan via WhatsApp ↗</button>
+    </div>
   </div>
 </div>
+<div class="item-modal" id="item-modal" hidden><div class="item-panel" role="dialog" aria-modal="true" aria-labelledby="detail-name"><img class="detail-image" id="detail-image" src="" alt=""><div class="detail-content"><div class="detail-head"><h2 id="detail-name"></h2><button class="detail-close" id="detail-close" aria-label="Tutup detail">×</button></div><p class="detail-desc" id="detail-desc"></p><div class="spicy-box" id="spicy-box" hidden><label for="spicy-level">🌶️ Level pedas burger</label><select id="spicy-level"><option value="Tidak pedas">Tidak pedas</option><option value="Sedang">Sedang 🌶️</option><option value="Pedas">Pedas 🌶️🌶️</option><option value="Extra pedas">Extra pedas 🌶️🌶️🌶️</option></select></div><div class="price" id="detail-price"></div><div class="detail-actions"><span class="desc" id="detail-quantity">Jumlah: 0</span><button class="add-btn" id="detail-add" type="button">+ Tambah ke keranjang</button></div></div></div></div>
 <div class="cart-modal" id="cart-modal" hidden>
   <div class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
     <div class="cart-head"><h2 id="cart-title">🛒 Keranjang Belanja</h2><button id="close-cart" class="close-cart" aria-label="Tutup keranjang">×</button></div>
@@ -103,38 +114,54 @@ button{cursor:pointer}
 </div>
 <style>
 .toolbar{overflow-x:auto;flex-wrap:nowrap;padding:2px 0 8px;scrollbar-width:none}.toolbar::-webkit-scrollbar{display:none}
-.cart-inner{flex-wrap:wrap}.cart-info{min-width:120px}.cart-modal{position:fixed;inset:0;background:#0b1428a8;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding:12px}.cart-modal[hidden]{display:none}
+.cart-inner{flex-direction:column;align-items:stretch;gap:8px}.cart-info{width:100%;min-width:0;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}.cart-label{grid-column:1}.cart-total{grid-column:1;grid-row:2}.cart-count{grid-column:2;grid-row:1 / span 2;align-self:center;text-align:right}.cart-actions{display:flex;gap:8px;width:100%}.cart-actions .checkout{flex:1;min-width:0}.cart-modal{position:fixed;inset:0;background:#0b1428a8;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding:12px}.cart-modal[hidden]{display:none}
 .cart-panel{width:100%;max-width:560px;max-height:82vh;overflow:auto;background:#fffaf2;border-radius:22px 22px 14px 14px;padding:18px;border:1px solid #e2c98f;box-shadow:0 18px 50px #0004}
 .cart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:10px}.cart-head h2{font-size:19px;margin:0;color:var(--navy)}.close-cart{border:0;background:#eee6d8;border-radius:50%;width:36px;height:36px;font-size:24px;color:var(--navy)}
 .cart-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.cart-row-info{flex:1;min-width:0}.cart-row-info strong{display:block;color:var(--navy);font-size:14px}.cart-row-info small{color:var(--muted)}.cart-row .qty{gap:7px}.cart-row .qty button{width:30px;height:30px}.cart-bottom{padding-top:15px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.cart-bottom strong{display:block;font-size:22px;color:var(--navy)}.clear-cart{border:1px solid #d7b977;background:#fff;color:var(--navy);border-radius:10px;padding:10px;font-weight:750}
-@media(max-width:380px){.cart-inner{flex-wrap:nowrap}.cart-info{min-width:0}.cart-label{font-size:10px}}
+@media(max-width:380px){.cart-label{font-size:10px}.cart-total{font-size:18px}.cart-actions .checkout{padding:12px 8px;font-size:12px}}
 </style>
 <script>
 const WHATSAPP_NUMBER = "6283130102001";
 const products = [
-  {id:"cemen",name:"Burger Cemen",category:"Burger",price:5000,icon:"🍔",desc:"Burger sederhana, pilihan hemat."},
-  {id:"santuy",name:"Burger Santuy",category:"Burger",price:8000,icon:"🍔",desc:"Burger lezat untuk teman santai."},
-  {id:"keju",name:"Burger Keju Meleleh",category:"Burger",price:10000,icon:"🧀",desc:"Burger dengan keju gurih."},
-  {id:"double",name:"Burger Double Naga",category:"Burger",price:20000,icon:"🔥",desc:"Pilihan burger ekstra mantap."},
-  {id:"sultan",name:"Burger Sultan",category:"Burger",price:28000,icon:"👑",desc:"Menu premium untuk memanjakan diri."},
-  {id:"kentang",name:"Kentang Santuy",category:"Camilan",price:7000,icon:"🍟",desc:"Kentang goreng teman burger."},
-  {id:"sosis",name:"Sosis Nampol",category:"Camilan",price:5000,icon:"🌭",desc:"Camilan gurih dan praktis."},
-  {id:"nugget",name:"Nugget Gemoy",category:"Camilan",price:7000,icon:"🍗",desc:"Nugget renyah untuk ngemil."},
-  {id:"kentangpedas",name:"Kentang Naga Pedas",category:"Camilan",price:9000,icon:"🌶️",desc:"Kentang dengan sensasi pedas."},
-  {id:"mix",name:"Paket Mix Barbar",category:"Camilan",price:12000,icon:"🍟",desc:"Campuran camilan favorit."},
+  {id:"neo2g",series:"Neo Series",name:"Burger Neo 2G",category:"Burger",price:8000,icon:"🍳",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85",desc:"Burger telur dengan saus tomat."},
+  {id:"neo3g",series:"Neo Series",name:"Burger Neo 3G",category:"Burger",price:10000,icon:"🧀",image:"https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=85",desc:"Burger telur dengan tambahan keju."},
+  {id:"lite3g",series:"Lite Series",name:"Burger Lite 3G",category:"Burger",price:12000,icon:"🍗",image:"https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=85",desc:"Burger dengan patty ayam."},
+  {id:"lite4g",series:"Lite Series",name:"Burger Lite 4G",category:"Burger",price:14000,icon:"🧀",image:"https://images.unsplash.com/photo-1553979459-d2229ba7433a?auto=format&fit=crop&w=900&q=85",desc:"Patty ayam dengan tambahan keju."},
+  {id:"lite5g",series:"Lite Series",name:"Burger Lite 5G",category:"Burger",price:16000,icon:"🧀",image:"https://images.unsplash.com/photo-1571091718767-18b5b1457addi?auto=format&fit=crop&w=900&q=85",desc:"Patty ayam dengan keju mozzarella."},
+  {id:"beef4g",series:"Beef Series",name:"Burger 4G",category:"Burger",price:14000,icon:"🍔",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85",desc:"Burger dengan beef patty."},
+  {id:"beef5g",series:"Beef Series",name:"Burger 5G",category:"Burger",price:16000,icon:"🧀",image:"https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=85",desc:"Beef patty dengan tambahan keju."},
+  {id:"pro4g",series:"Pro Series",name:"Burger Pro 4G",category:"Burger",price:21000,icon:"🔥",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85",desc:"Double beef patty, keju, dan saus spesial burger."},
+  {id:"proplus5g",series:"Pro Series",name:"Burger Pro Plus 5G",category:"Burger",price:25000,icon:"👑",image:"https://images.unsplash.com/photo-1553979459-d2229ba7433a?auto=format&fit=crop&w=900&q=85",desc:"Double beef patty, mozzarella, dan saus spesial burger."},
+  {id:"kentang",name:"Kentang Santuy",category:"Camilan",price:7000,icon:"🍟",image:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85",desc:"Kentang goreng teman burger."},
+  {id:"sosis",name:"Sosis Nampol",category:"Camilan",price:5000,icon:"🌭",image:"https://images.unsplash.com/photo-1612392062798-2dba7c7e5b0c?auto=format&fit=crop&w=900&q=85",desc:"Camilan gurih dan praktis."},
+  {id:"nugget",name:"Nugget Gemoy",category:"Camilan",price:7000,icon:"🍗",image:"https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=900&q=85",desc:"Nugget renyah untuk ngemil."},
+  {id:"kentangpedas",name:"Kentang Naga Pedas",category:"Camilan",price:9000,icon:"🌶️",image:"https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=900&q=85",desc:"Kentang dengan sensasi pedas."},
+  {id:"mix",name:"Paket Mix Barbar",category:"Camilan",price:12000,icon:"🍟",image:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=85",desc:"Campuran camilan favorit."},
 ];
 const quantities = Object.fromEntries(products.map(p=>[p.id,0]));
+const spicyLevels = Object.fromEntries(products.filter(p=>p.category==="Burger").map(p=>[p.id,"Tidak pedas"]));
+let activeDetailId = null;
 let currentCategory = "Burger";
 const rupiah = n => new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
 function renderMenu(){
   const grid=document.getElementById("menu-grid");
   const visible=products.filter(p=>p.category===currentCategory);
   grid.innerHTML="";
+  let lastSeries = null;
   visible.forEach(p=>{
+    const seriesName = currentCategory === "Burger" ? (p.series || "Burger Series") : "Camilan Series";
+    if(seriesName !== lastSeries){
+      const heading=document.createElement("h3");
+      heading.className="series-heading";
+      heading.textContent=seriesName;
+      grid.appendChild(heading);
+      lastSeries=seriesName;
+    }
     const q=quantities[p.id];
     const card=document.createElement("article");
     card.className="item";
-    card.innerHTML=`<div class="item-top"><div class="food-icon" aria-hidden="true">${p.icon}</div><div><h3>${p.name}</h3><div class="desc">${p.desc}</div></div></div><div class="price">${rupiah(p.price)}</div><div class="add-row">${q===0?`<span class="desc">Tambah ke pesanan</span><button class="add-btn" data-action="plus" data-id="${p.id}" aria-label="Tambah ${p.name}">+ Tambah</button>`:`<span class="desc">Jumlah</span><div class="qty"><button data-action="minus" data-id="${p.id}" aria-label="Kurangi ${p.name}">−</button><span>${q}</span><button data-action="plus" data-id="${p.id}" aria-label="Tambah ${p.name}">+</button></div>`}</div>`;
+    card.dataset.id=p.id; card.tabIndex=0; card.setAttribute("role","button"); card.setAttribute("aria-label",`Lihat detail ${p.name}`);
+    card.innerHTML=`<div class="item-top"><div class="food-icon"><img src="${p.image}" alt="Foto ${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80'"></div><div><h3>${p.name}</h3><div class="desc">${p.desc}</div></div></div><div class="price">${rupiah(p.price)}</div><div class="add-row">${q===0?`<span class="desc">Tambah ke pesanan</span><button class="add-btn" data-action="plus" data-id="${p.id}" aria-label="Tambah ${p.name}">+ Tambah</button>`:`<span class="desc">Jumlah</span><div class="qty"><button data-action="minus" data-id="${p.id}" aria-label="Kurangi ${p.name}">−</button><span>${q}</span><button data-action="plus" data-id="${p.id}" aria-label="Tambah ${p.name}">+</button></div>`}</div>`;
     grid.appendChild(card);
   });
   updateCart();
@@ -149,17 +176,30 @@ function updateCart(){
   document.getElementById("open-cart").textContent=count?`Keranjang (${count})`:"Keranjang";
   const list=document.getElementById("cart-items");
   if(!chosen.length){list.innerHTML='<div class="empty">Keranjang masih kosong. Tambahkan menu favoritmu dulu.</div>';}
-  else {list.innerHTML=chosen.map(p=>`<div class="cart-row"><div class="cart-row-info"><strong>${p.name}</strong><small>${rupiah(p.price)} × ${quantities[p.id]} = ${rupiah(p.price*quantities[p.id])}</small></div><div class="qty"><button data-cart-action="minus" data-id="${p.id}" aria-label="Kurangi ${p.name}">−</button><span>${quantities[p.id]}</span><button data-cart-action="plus" data-id="${p.id}" aria-label="Tambah ${p.name}">+</button></div></div>`).join('');}
+  else {list.innerHTML=chosen.map(p=>`<div class="cart-row"><div class="cart-row-info"><strong>${p.name}</strong><small>${p.category==="Burger"?`Level pedas: ${spicyLevels[p.id]} • `:""}${rupiah(p.price)} × ${quantities[p.id]} = ${rupiah(p.price*quantities[p.id])}</small></div><div class="qty"><button data-cart-action="minus" data-id="${p.id}" aria-label="Kurangi ${p.name}">−</button><span>${quantities[p.id]}</span><button data-cart-action="plus" data-id="${p.id}" aria-label="Tambah ${p.name}">+</button></div></div>`).join('');}
   document.getElementById("modal-total").textContent=rupiah(total);
+}
+function openItem(id){
+  const p=products.find(x=>x.id===id); if(!p)return;
+  activeDetailId=id;
+  document.getElementById("detail-image").src=p.image;
+  document.getElementById("detail-image").alt=`Foto ${p.name}`;
+  document.getElementById("detail-name").textContent=p.name;
+  document.getElementById("detail-desc").textContent=p.desc;
+  document.getElementById("detail-price").textContent=rupiah(p.price);
+  const spicyBox=document.getElementById("spicy-box");spicyBox.hidden=p.category!=="Burger";
+  if(p.category==="Burger")document.getElementById("spicy-level").value=spicyLevels[id]||"Tidak pedas";
+  document.getElementById("detail-quantity").textContent=`Jumlah di keranjang: ${quantities[id]}`;
+  document.getElementById("detail-add").dataset.id=id;
+  document.getElementById("item-modal").hidden=false;
 }
 document.getElementById("menu-grid").addEventListener("click",e=>{
   const b=e.target.closest("button[data-action]");
-  if(!b)return;
-  const id=b.dataset.id;
-  if(b.dataset.action==="plus")quantities[id]++;
-  if(b.dataset.action==="minus")quantities[id]=Math.max(0,quantities[id]-1);
-  renderMenu();
+  if(b){const id=b.dataset.id;if(b.dataset.action==="plus")quantities[id]++;if(b.dataset.action==="minus")quantities[id]=Math.max(0,quantities[id]-1);renderMenu();return;}
+  const card=e.target.closest(".item"); if(card){card.classList.add("pressed");setTimeout(()=>card.classList.remove("pressed"),180);openItem(card.dataset.id);}
 });
+document.getElementById("menu-grid").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("item")){e.preventDefault();const first=e.target.querySelector("button[data-id]");if(first)openItem(first.dataset.id);}});
+
 document.getElementById("filters").addEventListener("click",e=>{
   const b=e.target.closest("button[data-category]");
   if(!b)return;
@@ -177,14 +217,18 @@ document.getElementById("checkout").addEventListener("click",()=>{
   const note=document.getElementById("customer-note").value.trim();
   let message="Halo ZUHARS BITE! Saya mau pesan:%0A";
   message="Halo ZUHARS BITE! Saya mau pesan:\n";
-  chosen.forEach((p,i)=>{message+=`${i+1}. ${p.name} x${quantities[p.id]} = ${rupiah(p.price*quantities[p.id])}\n`;});
+  chosen.forEach((p,i)=>{message+=`${i+1}. ${p.name}${p.category==="Burger"?` (Level pedas: ${spicyLevels[p.id]})`:""} x${quantities[p.id]} = ${rupiah(p.price*quantities[p.id])}\n`;});
   message+=`\nTotal item: ${count}\nTOTAL: ${rupiah(total)}\n`;
   if(name)message+=`Nama: ${name}\n`;
   if(note)message+=`Catatan: ${note}\n`;
   message+="\nMohon konfirmasi ketersediaan dan ongkir (jika ada). Terima kasih!";
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,"_blank","noopener");
 });
-document.getElementById("open-cart").addEventListener("click",()=>{document.getElementById("cart-modal").hidden=false;});
+document.getElementById("open-cart").addEventListener("click",()=>{const modal=document.getElementById("cart-modal");modal.hidden=false;const panel=modal.querySelector(".cart-panel");panel.style.animation="none";void panel.offsetWidth;panel.style.animation="";});
+document.getElementById("spicy-level").addEventListener("change",e=>{if(activeDetailId&&spicyLevels[activeDetailId]!==undefined)spicyLevels[activeDetailId]=e.target.value;updateCart();});
+document.getElementById("detail-add").addEventListener("click",e=>{const id=e.currentTarget.dataset.id;if(id){if(spicyLevels[id]!==undefined)spicyLevels[id]=document.getElementById("spicy-level").value;quantities[id]++;renderMenu();openItem(id);}});
+document.getElementById("detail-close").addEventListener("click",()=>document.getElementById("item-modal").hidden=true);
+document.getElementById("item-modal").addEventListener("click",e=>{if(e.target.id==="item-modal")e.currentTarget.hidden=true;});
 document.getElementById("close-cart").addEventListener("click",()=>{document.getElementById("cart-modal").hidden=true;});
 document.getElementById("cart-modal").addEventListener("click",e=>{if(e.target.id==="cart-modal")e.currentTarget.hidden=true;});
 document.getElementById("cart-items").addEventListener("click",e=>{
@@ -196,6 +240,25 @@ document.getElementById("cart-items").addEventListener("click",e=>{
 });
 document.getElementById("clear-cart").addEventListener("click",()=>{products.forEach(p=>quantities[p.id]=0);renderMenu();});
 document.getElementById("year").textContent=new Date().getFullYear();
+// Efek suara sentuhan ringan menggunakan Web Audio API, tanpa file suara eksternal.
+let touchAudioContext=null;
+function playTouchSound(){
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx)return;
+    if(!touchAudioContext)touchAudioContext=new AudioCtx();
+    if(touchAudioContext.state==="suspended")touchAudioContext.resume();
+    const now=touchAudioContext.currentTime;
+    const oscillator=touchAudioContext.createOscillator();
+    const gain=touchAudioContext.createGain();
+    oscillator.type="sine";oscillator.frequency.setValueAtTime(720,now);oscillator.frequency.exponentialRampToValueAtTime(480,now+0.055);
+    gain.gain.setValueAtTime(0.0001,now);gain.gain.exponentialRampToValueAtTime(0.055,now+0.008);gain.gain.exponentialRampToValueAtTime(0.0001,now+0.075);
+    oscillator.connect(gain);gain.connect(touchAudioContext.destination);oscillator.start(now);oscillator.stop(now+0.08);
+  }catch(_){/* suara boleh tidak tersedia pada browser/perangkat tertentu */}
+}
+document.addEventListener("pointerdown",e=>{
+  if(e.target.closest("button, .item, select, input, textarea, a"))playTouchSound();
+},{passive:true});
 renderMenu();
 </script>
 </body>
